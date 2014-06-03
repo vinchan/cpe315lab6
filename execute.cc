@@ -16,8 +16,12 @@ unsigned int signExtend8to32ui(char i) {
 
 ASPR flags;
 
+<<<<<<< HEAD
 
 //vincent testing
+=======
+//All your base are belong to us!
+>>>>>>> 6d20c92022e8738802ad6ddc29e1e4f473e41232
 
 // You're given the code for evaluating BEQ, 
 // and you'll need to fill in the rest of these.
