@@ -16,6 +16,8 @@ unsigned int signExtend8to32ui(char i) {
 
 ASPR flags;
 
+//All your base are belong to us!
+
 // You're given the code for evaluating BEQ, 
 // and you'll need to fill in the rest of these.
 // See Page 99 of the armv6 manual
