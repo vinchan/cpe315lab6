@@ -16,6 +16,9 @@ unsigned int signExtend8to32ui(char i) {
 
 ASPR flags;
 
+
+//vincent testing
+
 // You're given the code for evaluating BEQ, 
 // and you'll need to fill in the rest of these.
 // See Page 99 of the armv6 manual
@@ -153,9 +156,9 @@ static int checkCondition(unsigned short cond) {
   }
 
 void execute() {
-	/*cout << "rf0:" << rf[0] << " 1:" << rf[1] << " 2:" << rf[2] << " 3:" << rf[3] << 
+	cout << "rf0:" << rf[0] << " 1:" << rf[1] << " 2:" << rf[2] << " 3:" << rf[3] << 
 	        " 4:" << rf[4] << " 5:" << rf[5] << " 6:" << rf[6] << " 7:" << rf[7] <<
-			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;*/
+			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;
 
   Data16 instr = imem[PC];
   Thumb_Types itype;
