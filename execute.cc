@@ -16,13 +16,6 @@ unsigned int signExtend8to32ui(char i) {
 
 ASPR flags;
 
-<<<<<<< HEAD
-
-//vincent testing
-=======
-//All your base are belong to us!
->>>>>>> 6d20c92022e8738802ad6ddc29e1e4f473e41232
-
 // You're given the code for evaluating BEQ, 
 // and you'll need to fill in the rest of these.
 // See Page 99 of the armv6 manual
@@ -124,7 +117,10 @@ static int checkCondition(unsigned short cond) {
 		  }
 		  break;
 		case OF_SUB:
-		  if (((unsigned long long int)num1 - (unsigned long long int)num2) ==
+		  if (num1 >= num2) {
+			flags.C = 1;
+		  }
+		  else if (((unsigned long long int)num1 - (unsigned long long int)num2) ==
 			  ((unsigned int)num1 - (unsigned int)num2)) {
 			flags.C = 0;
 		  }
@@ -160,10 +156,23 @@ static int checkCondition(unsigned short cond) {
   }
 
 void execute() {
-	cout << "rf0:" << rf[0] << " 1:" << rf[1] << " 2:" << rf[2] << " 3:" << rf[3] << 
+	/*cout << "rf0:" << rf[0] << " 1:" << rf[1] << " 2:" << rf[2] << " 3:" << rf[3] << 
 	        " 4:" << rf[4] << " 5:" << rf[5] << " 6:" << rf[6] << " 7:" << rf[7] <<
+			" 8:" << rf[8] << " 9:" << rf[9] << " 10:" << rf[10] <<
 			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;
-
+	
+	cout << "DMEM: " << endl;
+	cout << dmem[4294964500] << endl;
+	cout << dmem[4294964504] << endl;
+	cout << dmem[4294964508] << endl;*/
+			
+	/*if((signed int)(PC) == 34206){
+		cout << "DMEM" << endl;
+		for(int i = 34418; i < 34418 + 920; i = i + 4){
+			cout << "DMEM i = " << i << ":" << dmem[i] << endl;
+		}
+    }	*/
+			
   Data16 instr = imem[PC];
   Thumb_Types itype;
   unsigned int pctarget = PC + 2;
@@ -195,6 +204,7 @@ void execute() {
 
   itype = decode(ALL_Types(instr));
   int tempMov = 0;
+  Data32 temp(0);
   switch(itype) {
     case ALU:
       add_ops = decode(alu);
@@ -218,7 +228,7 @@ void execute() {
           break;
         case ALU_LSRI:
 		  setCarryOverflow(rf[alu.instr.lsli.rd], rf[alu.instr.lsli.rm],OF_SHIFT);
-          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] >> alu.instr.lsli.imm);
+          rf.write(alu.instr.lsli.rd, (unsigned int)(rf[alu.instr.lsli.rm]) >> alu.instr.lsli.imm);
           if(rf[alu.instr.lsli.rd] & 1 << 31){
 			flags.N = 1;
 		  }
@@ -331,7 +341,7 @@ void execute() {
 		  setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.sub3i.imm, OF_SUB);
 		  signed int signedResult;
 		  
-		  signedResult = rf[alu.instr.cmp.rdn] + (~alu.instr.cmp.imm + 1);
+		  signedResult = (signed int)rf[alu.instr.cmp.rdn] + (signed int)(~alu.instr.cmp.imm + 1);
 		  if(signedResult & 1 << 31){
 			flags.N = 1;
 		  }
@@ -466,7 +476,7 @@ void execute() {
 		  }
 		  break;
 		case DP_ADC_OP:
-		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_ADD);
+		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm] + flags.C, OF_ADD);
 		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] + rf[dp.instr.DP_Instr.rm] + flags.C); 
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
 			flags.N = 1;
@@ -482,7 +492,7 @@ void execute() {
 		  }
 		  break;
 		case DP_SBC_OP:
-		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SUB);
+		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm] - flags.C, OF_SUB);
 		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm] - flags.C); 
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
 			flags.N = 1;
@@ -522,7 +532,7 @@ void execute() {
 		case DP_CMP_OP:
 		  signed int signedResult;
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SUB);
-		  signedResult = rf[dp.instr.DP_Instr.rdn] + (~rf[dp.instr.DP_Instr.rm] + 1);
+		  signedResult = (signed int)rf[dp.instr.DP_Instr.rdn] + (signed int)(~rf[dp.instr.DP_Instr.rm] + 1);
 		  if(signedResult & 1 << 31){
 			flags.N = 1;
 		  }
@@ -554,25 +564,45 @@ void execute() {
       sp_ops = decode(sp);
       switch(sp_ops) {
         case SP_MOV:
-          if (sp.instr.mov.d == 1 && sp.instr.mov.rd == 5) {
-            rf.write(SP_REG, rf[sp.instr.mov.rm]);
-          }
-          else {
-		    if(sp.instr.mov.d == 1){
-				rf.write(sp.instr.mov.rd + 8, rf[sp.instr.mov.rm]);
-			}
-			else{
-				rf.write(sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-			}
+		  if(sp.instr.mov.d == 1){
+			 rf.write(sp.instr.mov.rd + 8, rf[sp.instr.mov.rm]);
+		  }
+		  else{
+			 rf.write(sp.instr.mov.rd, rf[sp.instr.mov.rm]);
           }
           break;
 		case SP_ADD:
-		 if (sp.instr.add.d == 1 && sp.instr.add.rd == 5 || sp.instr.add.rm == 13) {
-		    rf.write(SP_REG, SP + rf[sp.instr.add.rm]);
+		 if (sp.instr.add.d == 1) {
+		    rf.write(sp.instr.add.rd + 8, rf[sp.instr.add.rd + 8] + rf[sp.instr.add.rm]);
          }
          else {
             rf.write(sp.instr.add.rd, rf[sp.instr.add.rd] + rf[sp.instr.add.rm]);
          }
+		 break;
+		case SP_CMP:
+		 signed int signedResult;
+		 if(sp.instr.cmp.d == 1){
+		    setCarryOverflow(rf[sp.instr.cmp.rd + 8], rf[sp.instr.cmp.rm], OF_SUB);
+		    signedResult = (signed int)rf[sp.instr.cmp.rd + 8] + (signed int)(~rf[sp.instr.cmp.rm] + 1);
+		 }
+		 else{
+		    setCarryOverflow(rf[sp.instr.cmp.rd], rf[sp.instr.cmp.rm], OF_SUB);
+		    signedResult = (signed int)rf[sp.instr.cmp.rd] + (signed int)(~rf[sp.instr.cmp.rm] + 1);
+		 }
+		 
+		 if(signedResult & 1 << 31){
+		    flags.N = 1;
+		 }
+		 else{
+		    flags.N = 0;
+		 }
+		 if(signedResult == 0){
+		    flags.Z = 1;
+		 }
+		 else {
+		    flags.Z = 0;
+		 }
+		 break;
       }
       break;
     case LD_ST:
@@ -580,6 +610,39 @@ void execute() {
       // to implement ldrb/strb, ldm/stm and push/pop
       ldst_ops = decode(ld_st);
       switch(ldst_ops) {
+	    case STRR:
+		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+		  break;
+		case STRHR:
+		  cout << "MISSING STRHR" << endl;
+		  break;
+		case STRBR:
+		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+		  temp = dmem[addr];
+		  temp.set_data_ubyte4(0, rf[ld_st.instr.ld_st_reg.rt]);
+		  dmem.write(addr, temp);
+		  break;
+		case STRSBR:
+		  cout << "MISSING STRSBR" << endl;
+		  break;
+		case LDRR:
+		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+          rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
+		  break;
+		case LDRHR:
+		  cout << "MISSING LDRHR" << endl;
+		  break;
+		case LDRBR:
+		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+		  rf.write(ld_st.instr.ld_st_reg.rt, 0xFF000000 & dmem[addr]);
+		  break;
+		case LDRSBR:
+		  cout << "MISSING LDRSBR" << endl;
+		  break;
+		case LDRSHR:
+		  cout << "MISSING LDRSHR" << endl;
+		  break;
         case STRI:
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
@@ -588,6 +651,22 @@ void execute() {
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
           break;
+		case STRBI:
+		  addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+		  temp = dmem[addr];
+		  temp.set_data_ubyte4(0, rf[ld_st.instr.ld_st_imm.rt]);
+		  dmem.write(addr, temp);
+		  break;
+		case LDRBI:
+		  addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+		  rf.write(ld_st.instr.ld_st_imm.rt, 0xFF000000 & dmem[addr]);
+		  break;
+		case STRHI:
+		  cout << "MISSING STRHI" << endl;
+		  break;
+		case LDRHI:
+		  cout << "MISSING LDRHI" << endl;
+		  break;
 		case STRSP:
 		  addr = SP + ld_st.instr.ld_st_sp.imm * 4;
 		  dmem.write(addr, rf[ld_st.instr.ld_st_sp.rt]);
@@ -641,40 +720,40 @@ void execute() {
           break;
         case MISC_POP:
 		    if (misc.instr.pop.m) {
-				rf.write(PC_REG, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(PC_REG, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 128) {
-				rf.write(7, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(7, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 64) {
-				rf.write(6, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(6, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 32) {
-				rf.write(5, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(5, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 16) {
-				rf.write(4, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(4, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 8) {
-				rf.write(3, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(3, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 4) {
-				rf.write(2, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(2, dmem[SP]);
 		    }
 		    if (misc.instr.pop.reg_list & 2) {
-				rf.write(1, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(1, dmem[SP]);
 		    }
 			if (misc.instr.pop.reg_list & 1) {
-				rf.write(0, dmem[SP]);
 				rf.write(SP_REG, SP + 4);
+				rf.write(0, dmem[SP]);
 		    }
           break;
         case MISC_SUB:
@@ -695,11 +774,44 @@ void execute() {
       break;
     case UNCOND:
       decode(uncond);
-      rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
+      rf.write(PC_REG, PC + 2 * signExtend8to32ui(uncond.instr.b.imm) + 2);
       break;
     case LDM:
       decode(ldm);
+		if (ldm.instr.ldm.reg_list & 1) {
+			dmem.write(rf[ldm.instr.ldm.rn], rf[0]);
+			tempMov += 4;
+		}
+		if (ldm.instr.ldm.reg_list & 2) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[1]);
+			tempMov += 4;
+		}
+		if (ldm.instr.ldm.reg_list & 4) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[2]);
+			tempMov += 4;
+		}
+		if (ldm.instr.ldm.reg_list & 8) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[3]);
+			tempMov += 4;
+		}
+		if (ldm.instr.ldm.reg_list & 16) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[4]);
+			tempMov += 4;
+		}
+		if (ldm.instr.ldm.reg_list & 32) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[5]);
+			tempMov += 4;
+		} 
+		if (ldm.instr.ldm.reg_list & 64) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[6]);
+			tempMov += 4;
+		}
 		if (ldm.instr.ldm.reg_list & 128) {
+			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[7]);
+			tempMov += 4;
+		}
+		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);
+		/*if (ldm.instr.ldm.reg_list & 128) {
 			tempMov -= 4;
 			rf.write(7, dmem[ldm.instr.ldm.rn] + tempMov);
 		}
@@ -731,47 +843,65 @@ void execute() {
 			tempMov -= 4;
 			rf.write(0, dmem[ldm.instr.ldm.rn] + tempMov);
 		}
-		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);
+		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);*/
       break;
     case STM:
       decode(stm);
 		if (stm.instr.stm.reg_list & 1) {
-			dmem.write(stm.instr.stm.rn, rf[0]);
+			dmem.write(rf[stm.instr.stm.rn], rf[0]);
 			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 2) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[1]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[1]);
 			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 4) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[2]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[2]);
 			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 8) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[3]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[3]);
 			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 16) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[4]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[4]);
 			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 32) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[5]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[5]);
 			tempMov += 4;
 		} 
 		if (stm.instr.stm.reg_list & 64) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[6]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[6]);
 			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 128) {
-			dmem.write(stm.instr.stm.rn + tempMov, rf[7]);
+			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[7]);
 			tempMov += 4;
 		}
 		rf.write(stm.instr.stm.rn, rf[stm.instr.stm.rn] + tempMov);
       break;
     case LDRL:
-      decode(ldrl);
-	  rf.write(ldrl.instr.ldrl.rt, PC + (ldrl.instr.ldrl.imm*4));
+	  decode(ldrl);  
+	  
+      if (PC & 2) {
+        addr = PC + 2 + (ldrl.instr.ldrl.imm)*4;
+      }
+      else {
+        addr = PC + (ldrl.instr.ldrl.imm)*4;
+      }
+      // Requires two consecutive imem locations pieced together
+      temp = imem[addr] | (imem[addr+2]<<16);  // temp is a Data32
+      rf.write(ldrl.instr.ldrl.rt, temp);
+      
+      // One write for updated reg
+      stats.numRegWrites++;
+      // One read of the PC
+      stats.numRegReads++;
+      // One mem read, even though it's imem, and there's two of them
+      stats.numMemReads++;
+	  
+	  /*rf.write(ldrl.instr.ldrl.rt, PC + (ldrl.instr.ldrl.imm*4));*/
       break;
     case ADD_SP:
       decode(addsp);

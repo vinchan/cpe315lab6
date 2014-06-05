@@ -2,6 +2,9 @@
 #include <iomanip>
 #include "thumbsim.hpp"
 
+#define PC_REG 15
+#define PC rf[PC_REG]
+
 using namespace std;
 
 
@@ -110,7 +113,7 @@ ALU_Ops decode (const ALU_Type data) {
 		  return ALU_ADDR;
 	   }
 	   else if (data.instr.subr.op == ALU_SUBR_OP) {
-			 cout << "sub r";
+			 cout << "subs r";
 			 cout << data.instr.subr.rd;
 			 cout << ", r";
 			 cout << data.instr.subr.rn;
@@ -135,7 +138,7 @@ ALU_Ops decode (const ALU_Type data) {
 	   }
 	   else if (data.instr.add8i.op == ALU_ADD8I_OP) {
 		  if (opts.instrs) { 
-			 cout << "adds r" << data.instr.add8i.rdn << ", #" << data.instr.add8i.imm << endl;
+			 cout << "adds r" << data.instr.add8i.rdn << ", #" << setbase(10) << data.instr.add8i.imm << endl;
 		  }
 		  return ALU_ADD8I;
 	   }
@@ -143,12 +146,12 @@ ALU_Ops decode (const ALU_Type data) {
 			 cout << "subs r";
 			 cout << data.instr.sub8i.rdn;
 			 cout << ", #";
-			 cout << data.instr.sub3i.imm << endl;
+			 cout << data.instr.sub8i.imm << endl;
 			 return ALU_SUB8I;
 	   }
 	   else if (data.instr.cmp.op == ALU_CMP_OP) { 
 		  if (opts.instrs) { 
-			 cout << "cmp r" << data.instr.cmp.rdn << ", #" << data.instr.cmp.imm << endl;
+			 cout << "cmp r" << data.instr.cmp.rdn << ", #" << setbase(10) << data.instr.cmp.imm << endl;
 		  }
 		  return ALU_CMP;
 	   }
@@ -302,10 +305,16 @@ SP_Ops decode (const SP_Type data) {
          }
          else {
 			if(data.instr.mov.d == 1){
-				cout << " r" << data.instr.mov.rd + 8 << ", r" << data.instr.mov.rm << endl;
+				cout << " r" << setbase(10) << data.instr.mov.rd + 8;
 			}
 			else{
-				cout << " r" << data.instr.mov.rd << ", r" << data.instr.mov.rm << endl;
+				cout << " r" << setbase(10) << data.instr.mov.rd;
+			}
+			if(data.instr.mov.rm == 13){
+				cout << ", sp" << endl;
+			}
+			else{
+				cout << ", r" << setbase(10) << data.instr.mov.rm << endl;
 			}
          }
       }
@@ -314,14 +323,49 @@ SP_Ops decode (const SP_Type data) {
    else if( data.instr.add.op == 0) {
       if (opts.instrs) {
 	     cout << "add";
-	     if (data.instr.add.d == 1 && data.instr.add.rd == 0b101 || data.instr.add.rm == 0b1101) {
+	     if (data.instr.add.d == 1 && data.instr.add.rd == 0b101) {
 			cout << " sp, sp, r" << data.instr.add.rm << endl;
          }
          else {
-            cout << " r" << data.instr.add.rd << ", r" << data.instr.add.rd << ", r" << data.instr.add.rm << endl;
+		    if(data.instr.mov.d == 1){
+               cout << " r" << setbase(10) << data.instr.add.rd + 8 << ", r" << data.instr.add.rd + 8;
+			}
+			else{
+			   cout << " r" << setbase(10) << data.instr.add.rd << ", r" << data.instr.add.rd;
+			}
+			if(data.instr.add.rm == 13){
+				cout << ", sp" << endl;
+			}
+			else{
+				cout << ", r" << setbase(10) << data.instr.add.rm << endl;
+			}
          }
 	  }
 	  return SP_ADD;
+   }
+   else if( data.instr.cmp.op == 1) {
+      if (opts.instrs) {
+	     cout << "cmp";
+	     if (data.instr.cmp.d == 1 && data.instr.cmp.rd == 0b101) {
+			cout << " sp, r" << data.instr.cmp.rm << endl;
+         }
+         else {
+		    if(data.instr.cmp.d == 1){
+			   cout << " r" << setbase(10) << data.instr.cmp.rd + 8;
+			}
+			else{
+			   cout << " r" << setbase(10) << data.instr.cmp.rd;
+			}
+			if(data.instr.cmp.rm == 13){
+				cout << ", sp" << endl;
+			}
+			else{
+				cout << ", r" << setbase(10) << data.instr.cmp.rm << endl;
+			}
+            
+         }
+	  }
+	  return SP_CMP;
    }
    else {
       if (opts.instrs) { 
@@ -335,51 +379,81 @@ LD_ST_Ops decode (const LD_ST_Type data) {
 	   if (data.instr.class_type.opA == LD_ST_REG_OPA) {
 			if (data.instr.class_type.opB == LD_ST_OPB_STR) {
 				cout << "str r";
-				data.instr.ld_st_reg.rm;
+				cout << data.instr.ld_st_reg.rt;
 				cout << ", [r";
 				cout << data.instr.ld_st_reg.rn;
 				cout << ", r";
-				cout << data.instr.ld_st_reg.rt;
+				cout << data.instr.ld_st_reg.rm;
 				cout << "]" << endl;
 				return STRR;
 			}
 			else if (data.instr.class_type.opB == LD_ST_OPB_STRH) {
-				cout << "strh r";
-				//NEED TO DO
+				/*cout << "strh r";
+				cout << data.instr.ld_st_reg.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_reg.rn;
+				cout << ", r";
+				cout << data.instr.ld_st_reg.rm;
+				cout << "]" << endl;*/
 				return STRHR;
 			}
 			else if (data.instr.class_type.opB == LD_ST_OPB_STRB) {
 				cout << "strb r";
-				//NEED TO DO
+				cout << data.instr.ld_st_reg.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_reg.rn;
+				cout << ", r";
+				cout << data.instr.ld_st_reg.rm;
+				cout << "]" << endl;
 				return STRBR;
 			}else if (data.instr.class_type.opB == LD_ST_OPB_LDRSB) {
-				cout << "ldrsb r";
-				//NEED TO DO
+				/*cout << "ldrsb r";
+				cout << data.instr.ld_st_reg.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_reg.rn;
+				cout << ", r";
+				cout << data.instr.ld_st_reg.rm;
+				cout << "]" << endl;*/
 				return LDRSBR;
 			}
 			else if (data.instr.class_type.opB == LD_ST_OPB_LDR) {
 				cout << "ldr r";
-				data.instr.ld_st_reg.rm;
+				cout << data.instr.ld_st_reg.rt;
 				cout << ", [r";
 				cout << data.instr.ld_st_reg.rn;
 				cout << ", r";
-				cout << data.instr.ld_st_reg.rt;
+				cout << data.instr.ld_st_reg.rm;
 				cout << "]" << endl;
 				return LDRR;
 			}
 			else if (data.instr.class_type.opB == LD_ST_OPB_LDRH) {
-				cout << "ldrh r";
-				//NEED TO DO
+				/*cout << "ldrh r";
+				cout << data.instr.ld_st_reg.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_reg.rn;
+				cout << ", r";
+				cout << data.instr.ld_st_reg.rm;
+				cout << "]" << endl;*/
 				return LDRHR;
 			}
 			else if (data.instr.class_type.opB == LD_ST_OPB_LDRB) {
 				cout << "ldrb r";
-				//NEED TO DO
+				cout << data.instr.ld_st_reg.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_reg.rn;
+				cout << ", r";
+				cout << data.instr.ld_st_reg.rm;
+				cout << "]" << endl;
 				return LDRBR;
 			}
 			else if (data.instr.class_type.opB == LD_ST_OPB_LDRSH) {
-				cout << "ldrsh r";
-				//NEED TO DO
+				/*cout << "ldrsh r";
+				cout << data.instr.ld_st_reg.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_reg.rn;
+				cout << ", r";
+				cout << data.instr.ld_st_reg.rm;
+				cout << "]" << endl;*/
 				return LDRSHR;
 			}
 	   }
@@ -398,11 +472,11 @@ LD_ST_Ops decode (const LD_ST_Type data) {
 		  }
 	   }
 	   else if (data.instr.class_type.opA == LD_ST_IMMB_OPA) {
-			if (data.instr.class_type.opB & 4 == 0) {
+			if (data.instr.class_type.opB < 4) {//this means MSB isn't set
 				cout << "strb r";
-				cout << data.instr.ld_st_imm.rn;
-				cout << ", [r";
 				cout << data.instr.ld_st_imm.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_imm.rn;
 				cout << ", #";
 				cout <<  setbase(10) << (static_cast<unsigned int>(data.instr.ld_st_imm.imm)<< 2);
 				cout << "]" << endl;
@@ -410,9 +484,9 @@ LD_ST_Ops decode (const LD_ST_Type data) {
 			}
 			else if (data.instr.class_type.opB & 4) {
 				cout << "ldrb r";
-				cout << data.instr.ld_st_imm.rn;
-				cout << ", [r";
 				cout << data.instr.ld_st_imm.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_imm.rn;
 				cout << ", #";
 				cout <<  setbase(10) << (static_cast<unsigned int>(data.instr.ld_st_imm.imm)<< 2);
 				cout << "]" << endl;
@@ -420,29 +494,29 @@ LD_ST_Ops decode (const LD_ST_Type data) {
 			}
 	   }
 	   else if (data.instr.class_type.opA == LD_ST_IMMH_OPA) {
-			if (data.instr.class_type.opB & 4 == 0) {
-				cout << "strh r";
-				cout << data.instr.ld_st_imm.rn;
-				cout << ", [r";
+			if (data.instr.class_type.opB < 4) {//this means MSB isn't set
+				/*cout << "strh r";
 				cout << data.instr.ld_st_imm.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_imm.rn;
 				cout << ", #";
 				cout <<  setbase(10) << (static_cast<unsigned int>(data.instr.ld_st_imm.imm)<< 2);
-				cout << "]" << endl;
+				cout << "]" << endl;*/
 				return STRHI;
 			}
 			else if (data.instr.class_type.opB & 4) {
-				cout << "ldrh r";
-				cout << data.instr.ld_st_imm.rn;
-				cout << ", [r";
+				/*cout << "ldrh r";
 				cout << data.instr.ld_st_imm.rt;
+				cout << ", [r";
+				cout << data.instr.ld_st_imm.rn;
 				cout << ", #";
 				cout <<  setbase(10) << (static_cast<unsigned int>(data.instr.ld_st_imm.imm)<< 2);
-				cout << "]" << endl;
+				cout << "]" << endl;*/
 				return LDRHI;
 			}
 	   }
 	   else if (data.instr.class_type.opA == LD_ST_IMMSP_OPA) {
-			if (data.instr.class_type.opB & 4 == 0) {
+			if (data.instr.class_type.opB < 4) {//this means MSB isn't set
 				cout << "str r";
 				cout << data.instr.ld_st_sp.rt;
 				cout << ", [sp, #";
@@ -609,13 +683,13 @@ int decode (const COND_Type data) {
    if (opts.instrs) { 
       cout << "b";
       printCond(data.instr.b.cond);
-      cout << " 0x" << hex << data.instr.b.imm << endl;
+      cout << " 0x" << hex << PC + 2 * static_cast<unsigned int>(static_cast<int>((char)data.instr.b.imm)) + 2 << endl;
    }
 }
 
 int decode (const UNCOND_Type data) {
    if (opts.instrs) { 
-      cout << "b 0x" << hex << data.instr.b.imm << endl;
+      cout << "b 0x" << hex << PC + 2 * static_cast<unsigned int>(static_cast<int>((char)data.instr.b.imm)) + 2 << endl;
    }
 }
 
