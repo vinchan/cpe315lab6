@@ -748,7 +748,8 @@ void execute() {
 		  stats.numMemReads++;
 		  stats.numRegWrites++;
 		  break;
-    }
+    	}
+    	break;
     case MISC:
       misc_ops = decode(misc);
       switch(misc_ops) {
