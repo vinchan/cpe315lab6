@@ -159,8 +159,8 @@ void execute() {
 	/*cout << "rf0:" << rf[0] << " 1:" << rf[1] << " 2:" << rf[2] << " 3:" << rf[3] << 
 	        " 4:" << rf[4] << " 5:" << rf[5] << " 6:" << rf[6] << " 7:" << rf[7] <<
 			" 8:" << rf[8] << " 9:" << rf[9] << " 10:" << rf[10] <<
-			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;
-	
+			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;*/
+	/*
 	cout << "DMEM: " << endl;
 	cout << dmem[4294964500] << endl;
 	cout << dmem[4294964504] << endl;
@@ -231,17 +231,17 @@ void execute() {
 		  
           break;
         case ALU_LSRI:
-		  setCarryOverflow(rf[alu.instr.lsli.rd], rf[alu.instr.lsli.rm],OF_SHIFT);
-          	  rf.write(alu.instr.lsli.rd, (unsigned int)(rf[alu.instr.lsli.rm]) >> alu.instr.lsli.imm);
+		  setCarryOverflow(rf[alu.instr.lsri.rd], rf[alu.instr.lsri.rm],OF_SHIFT);
+          rf.write(alu.instr.lsri.rd, (unsigned int)(rf[alu.instr.lsri.rm]) >> alu.instr.lsri.imm);
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
-          	  if(rf[alu.instr.lsli.rd] & 1 << 31){
+          if(rf[alu.instr.lsri.rd] & 1 << 31){
 			flags.N = 1;
 		  }
 		  else{
 			flags.N = 0;
 		  }
-		  if(!rf[alu.instr.lsli.rd]){
+		  if(!rf[alu.instr.lsri.rd]){
 			flags.Z = 1;
 		  }
 		  else {
@@ -249,17 +249,17 @@ void execute() {
 		  }
 		  break;
         case ALU_ASRI:
-		  setCarryOverflow(rf[alu.instr.lsli.rd], rf[alu.instr.lsli.rm],OF_SHIFT);
-          	  rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] >> alu.instr.lsli.imm);
+		  setCarryOverflow(rf[alu.instr.asri.rd], rf[alu.instr.asri.rm],OF_SHIFT);
+          	  rf.write(alu.instr.asri.rd, rf[alu.instr.asri.rm] >> alu.instr.asri.imm);
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
-		  if(rf[alu.instr.lsli.rd] & 1 << 31){
+		  if(rf[alu.instr.asri.rd] & 1 << 31){
 			flags.N = 1;
 		  }
 		  else{
 			flags.N = 0;
 		  }
-		  if(!rf[alu.instr.lsli.rd]){
+		  if(!rf[alu.instr.asri.rd]){
 			flags.Z = 1;
 		  }
 		  else {
@@ -355,10 +355,10 @@ void execute() {
 		  }
           break;
         case ALU_CMP:
-		  setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.sub3i.imm, OF_SUB);
+		  setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
 		  signed int signedResult;
 		  
-		  signedResult = (signed int)rf[alu.instr.cmp.rdn] + (signed int)(~alu.instr.cmp.imm + 1);
+		  signedResult = (signed int)rf[alu.instr.cmp.rdn] - (signed int)(alu.instr.cmp.imm);
 		  stats.numRegReads++;
 		  if(signedResult & 1 << 31){
 			flags.N = 1;
@@ -375,7 +375,7 @@ void execute() {
           break;
         case ALU_ADD8I:
 		  setCarryOverflow(rf[alu.instr.add8i.rdn], alu.instr.add8i.imm, OF_ADD);
-          	  rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
+          rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
 		  stats.numRegReads++;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.add8i.rdn] & 1 << 31){
@@ -393,7 +393,7 @@ void execute() {
           break;
         case ALU_SUB8I:
 		  setCarryOverflow(rf[alu.instr.sub8i.rdn], alu.instr.sub8i.imm ,OF_SUB);
-          	  rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+          rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
 		  stats.numRegReads++;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.sub8i.rdn] & 1 << 31){
@@ -418,7 +418,7 @@ void execute() {
       dp_ops = decode(dp);
 	  switch(dp_ops){
 	    case DP_AND_OP:
-		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] & rf[dp.instr.DP_Instr.rm]); 
+		  rf.write(dp.instr.DP_Instr.rdn, rf[dp.instr.DP_Instr.rdn] & rf[dp.instr.DP_Instr.rm]); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -436,7 +436,7 @@ void execute() {
 		  flags.C = 0;
 		  break;
 		case DP_EOR_OP:
-		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] ^ rf[dp.instr.DP_Instr.rm]); 
+		  rf.write(dp.instr.DP_Instr.rdn, rf[dp.instr.DP_Instr.rdn] ^ rf[dp.instr.DP_Instr.rm]); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -455,7 +455,7 @@ void execute() {
 		  break;
 		case DP_LSL_OP:
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SHIFT);
-		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] << rf[dp.instr.DP_Instr.rm]); 
+		  rf.write(dp.instr.DP_Instr.rdn, rf[dp.instr.DP_Instr.rdn] << rf[dp.instr.DP_Instr.rm]); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -473,7 +473,7 @@ void execute() {
 		  break;
 		case DP_LSR_OP:
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SHIFT);
-		  rf.write(rf[dp.instr.DP_Instr.rdn], (unsigned int)(rf[dp.instr.DP_Instr.rdn]) >> rf[dp.instr.DP_Instr.rm]); 
+		  rf.write(dp.instr.DP_Instr.rdn, (unsigned int)(rf[dp.instr.DP_Instr.rdn]) >> rf[dp.instr.DP_Instr.rm]); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -491,7 +491,7 @@ void execute() {
 		  break;
 		case DP_ASR_OP:
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SHIFT);
-		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] >> rf[dp.instr.DP_Instr.rm]); 
+		  rf.write(dp.instr.DP_Instr.rdn, rf[dp.instr.DP_Instr.rdn] >> rf[dp.instr.DP_Instr.rm]); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -509,7 +509,7 @@ void execute() {
 		  break;
 		case DP_ADC_OP:
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm] + flags.C, OF_ADD);
-		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] + rf[dp.instr.DP_Instr.rm] + flags.C); 
+		  rf.write(dp.instr.DP_Instr.rdn, rf[dp.instr.DP_Instr.rdn] + rf[dp.instr.DP_Instr.rm] + flags.C); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -527,7 +527,7 @@ void execute() {
 		  break;
 		case DP_SBC_OP:
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm] - flags.C, OF_SUB);
-		  rf.write(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm] - flags.C); 
+		  rf.write(dp.instr.DP_Instr.rdn, rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm] - flags.C); 
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
@@ -568,7 +568,7 @@ void execute() {
 		case DP_CMP_OP:
 		  signed int signedResult;
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SUB);
-		  signedResult = (signed int)rf[dp.instr.DP_Instr.rdn] + (signed int)(~rf[dp.instr.DP_Instr.rm] + 1);
+		  signedResult = (signed int)rf[dp.instr.DP_Instr.rdn] - (signed int)(rf[dp.instr.DP_Instr.rm]);
 		  stats.numRegReads += 2;
 		  if(signedResult & 1 << 31){
 			flags.N = 1;
@@ -618,21 +618,21 @@ void execute() {
 			stats.numRegReads++;
 			stats.numRegWrites++;
          	}
-         	else {
-            		rf.write(sp.instr.add.rd, rf[sp.instr.add.rd] + rf[sp.instr.add.rm]);
+         else {
+            rf.write(sp.instr.add.rd, rf[sp.instr.add.rd] + rf[sp.instr.add.rm]);
 			stats.numRegReads += 2;
 			stats.numRegWrites++;
-        	 }
+       	 }
 		 break;
 	 case SP_CMP:
 		 signed int signedResult;
 		 if(sp.instr.cmp.d == 1){
 		    setCarryOverflow(rf[sp.instr.cmp.rd + 8], rf[sp.instr.cmp.rm], OF_SUB);
-		    signedResult = (signed int)rf[sp.instr.cmp.rd + 8] + (signed int)(~rf[sp.instr.cmp.rm] + 1);
+		    signedResult = (signed int)rf[sp.instr.cmp.rd + 8] -(signed int)(rf[sp.instr.cmp.rm]);
 		 }
 		 else{
 		    setCarryOverflow(rf[sp.instr.cmp.rd], rf[sp.instr.cmp.rm], OF_SUB);
-		    signedResult = (signed int)rf[sp.instr.cmp.rd] + (signed int)(~rf[sp.instr.cmp.rm] + 1);
+		    signedResult = (signed int)rf[sp.instr.cmp.rd] - (signed int)(rf[sp.instr.cmp.rm]);
 		 }
 		stats.numRegReads++;
 		stats.numRegWrites++;
@@ -748,7 +748,8 @@ void execute() {
 		  stats.numMemReads++;
 		  stats.numRegWrites++;
 		  break;
-    }
+		}
+		break;
     case MISC:
       misc_ops = decode(misc);
       switch(misc_ops) {
@@ -913,49 +914,49 @@ void execute() {
     case LDM:
       decode(ldm);
 		if (ldm.instr.ldm.reg_list & 1) {
-			dmem.write(rf[ldm.instr.ldm.rn], rf[0]);
+			rf.write(0, rf[ldm.instr.ldm.rn]);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 2) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[1]);
+			rf.write(1, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 4) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[2]);
+			rf.write(2, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 8) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[3]);
+			rf.write(3, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 16) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[4]);
+			rf.write(4, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 32) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[5]);
+			rf.write(5, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		} 
 		if (ldm.instr.ldm.reg_list & 64) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[6]);
+			rf.write(6, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 128) {
-			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[7]);
+			rf.write(7, rf[ldm.instr.ldm.rn] + tempMov);
 			stats.numRegReads += 2;
 			stats.numMemWrites++;
 			tempMov += 4;
@@ -1034,8 +1035,6 @@ void execute() {
       stats.numRegReads++;
       // One mem read, even though it's imem, and there's two of them
       stats.numMemReads++;
-	  
-	  /*rf.write(ldrl.instr.ldrl.rt, PC + (ldrl.instr.ldrl.imm*4));*/
       break;
     case ADD_SP:
       decode(addsp);
