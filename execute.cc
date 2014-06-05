@@ -16,11 +16,6 @@ unsigned int signExtend8to32ui(char i) {
 
 ASPR flags;
 
-<<<<<<< HEAD
-=======
-//All your base are belong to us!
-
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 // You're given the code for evaluating BEQ, 
 // and you'll need to fill in the rest of these.
 // See Page 99 of the armv6 manual
@@ -163,7 +158,6 @@ static int checkCondition(unsigned short cond) {
 void execute() {
 	/*cout << "rf0:" << rf[0] << " 1:" << rf[1] << " 2:" << rf[2] << " 3:" << rf[3] << 
 	        " 4:" << rf[4] << " 5:" << rf[5] << " 6:" << rf[6] << " 7:" << rf[7] <<
-<<<<<<< HEAD
 			" 8:" << rf[8] << " 9:" << rf[9] << " 10:" << rf[10] <<
 			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;
 	
@@ -179,13 +173,11 @@ void execute() {
 		}
     }	*/
 			
-=======
-			" sp:" << SP << " lr:" << LR << " pc:" << PC << endl;*/
-
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
   Data16 instr = imem[PC];
   Thumb_Types itype;
   unsigned int pctarget = PC + 2;
+  stats.numRegReads++;
+  stats.numRegWrites++;
   unsigned int addr;
   int diff, BitCount, bit;
 
@@ -214,20 +206,16 @@ void execute() {
 
   itype = decode(ALL_Types(instr));
   int tempMov = 0;
-<<<<<<< HEAD
   Data32 temp(0);
-=======
-  stats.instr++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
   switch(itype) {
     case ALU:
       add_ops = decode(alu);
       switch(add_ops) {
         case ALU_LSLI:
 		  setCarryOverflow(rf[alu.instr.lsli.rd], rf[alu.instr.lsli.rm],OF_SHIFT);
-          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
-		  stats.numRegReads += 2;
-		  stats.numRegWrites++;
+          	  rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);	
+	 	  stats.numRegReads += 2;
+		  stats.numRegWrites++;	  
 		  if(rf[alu.instr.lsli.rd] & 1 << 31){
 			flags.N = 1;
 		  }
@@ -244,14 +232,10 @@ void execute() {
           break;
         case ALU_LSRI:
 		  setCarryOverflow(rf[alu.instr.lsli.rd], rf[alu.instr.lsli.rm],OF_SHIFT);
-<<<<<<< HEAD
-          rf.write(alu.instr.lsli.rd, (unsigned int)(rf[alu.instr.lsli.rm]) >> alu.instr.lsli.imm);
-=======
-          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] >> alu.instr.lsli.imm);
+          	  rf.write(alu.instr.lsli.rd, (unsigned int)(rf[alu.instr.lsli.rm]) >> alu.instr.lsli.imm);
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
-          if(rf[alu.instr.lsli.rd] & 1 << 31){
+          	  if(rf[alu.instr.lsli.rd] & 1 << 31){
 			flags.N = 1;
 		  }
 		  else{
@@ -266,7 +250,7 @@ void execute() {
 		  break;
         case ALU_ASRI:
 		  setCarryOverflow(rf[alu.instr.lsli.rd], rf[alu.instr.lsli.rm],OF_SHIFT);
-          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] >> alu.instr.lsli.imm);
+          	  rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] >> alu.instr.lsli.imm);
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.lsli.rd] & 1 << 31){
@@ -284,7 +268,7 @@ void execute() {
           break;
         case ALU_ADDR:
 		  setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm],OF_ADD);
-          rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          	  rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.addr.rd] & 1 << 31){
@@ -302,7 +286,7 @@ void execute() {
           break;
         case ALU_SUBR:
 		  setCarryOverflow(rf[alu.instr.subr.rn], rf[alu.instr.subr.rm],OF_SUB);
-          rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+        	  rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
 		  stats.numRegReads += 2;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.subr.rd] & 1 << 31){
@@ -320,7 +304,7 @@ void execute() {
           break;
         case ALU_ADD3I:
 		  setCarryOverflow(rf[alu.instr.add3i.rn], alu.instr.add3i.imm, OF_ADD);
-          rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+          	  rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
 		  stats.numRegReads++;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.add3i.rd] & 1 << 31){
@@ -338,7 +322,7 @@ void execute() {
           break;
         case ALU_SUB3I:
 		  setCarryOverflow(rf[alu.instr.sub3i.rn], alu.instr.sub3i.imm ,OF_SUB);
-          rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
+          	  rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
 		  stats.numRegReads++;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.sub3i.rd] & 1 << 31){
@@ -355,7 +339,7 @@ void execute() {
 		  }
           break;
         case ALU_MOV:
-          rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
+          	  rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.mov.rdn] & 1 << 31){
 			flags.N = 1;
@@ -374,12 +358,8 @@ void execute() {
 		  setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.sub3i.imm, OF_SUB);
 		  signed int signedResult;
 		  
-<<<<<<< HEAD
 		  signedResult = (signed int)rf[alu.instr.cmp.rdn] + (signed int)(~alu.instr.cmp.imm + 1);
-=======
-		  signedResult = rf[alu.instr.cmp.rdn] + (~alu.instr.cmp.imm + 1);
 		  stats.numRegReads++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		  if(signedResult & 1 << 31){
 			flags.N = 1;
 		  }
@@ -395,7 +375,7 @@ void execute() {
           break;
         case ALU_ADD8I:
 		  setCarryOverflow(rf[alu.instr.add8i.rdn], alu.instr.add8i.imm, OF_ADD);
-          rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
+          	  rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
 		  stats.numRegReads++;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.add8i.rdn] & 1 << 31){
@@ -413,7 +393,7 @@ void execute() {
           break;
         case ALU_SUB8I:
 		  setCarryOverflow(rf[alu.instr.sub8i.rdn], alu.instr.sub8i.imm ,OF_SUB);
-          rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+          	  rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
 		  stats.numRegReads++;
 		  stats.numRegWrites++;
 		  if(rf[alu.instr.sub8i.rdn] & 1 << 31){
@@ -567,7 +547,6 @@ void execute() {
 		  //not required
 		  break;
 		case DP_TST_OP:
-		  stats.numRegReads++;
 		  if(rf[dp.instr.DP_Instr.rdn] & 1 << 31){
 			flags.N = 1;
 		  }
@@ -589,12 +568,8 @@ void execute() {
 		case DP_CMP_OP:
 		  signed int signedResult;
 		  setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SUB);
-<<<<<<< HEAD
 		  signedResult = (signed int)rf[dp.instr.DP_Instr.rdn] + (signed int)(~rf[dp.instr.DP_Instr.rm] + 1);
-=======
-		  signedResult = rf[dp.instr.DP_Instr.rdn] + (~rf[dp.instr.DP_Instr.rm] + 1);
 		  stats.numRegReads += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		  if(signedResult & 1 << 31){
 			flags.N = 1;
 		  }
@@ -626,50 +601,30 @@ void execute() {
       sp_ops = decode(sp);
       switch(sp_ops) {
         case SP_MOV:
-<<<<<<< HEAD
 		  if(sp.instr.mov.d == 1){
 			 rf.write(sp.instr.mov.rd + 8, rf[sp.instr.mov.rm]);
+			stats.numRegReads++;
+			stats.numRegWrites++;
 		  }
 		  else{
 			 rf.write(sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-          }
-          break;
-		case SP_ADD:
+				stats.numRegReads++;
+				stats.numRegWrites++;
+        	  }
+          	break;
+	 case SP_ADD:
 		 if (sp.instr.add.d == 1) {
 		    rf.write(sp.instr.add.rd + 8, rf[sp.instr.add.rd + 8] + rf[sp.instr.add.rm]);
-=======
-          if (sp.instr.mov.d == 1 && sp.instr.mov.rd == 5) {
-            rf.write(SP_REG, rf[sp.instr.mov.rm]);
 			stats.numRegReads++;
 			stats.numRegWrites++;
-          }
-          else {
-		    if(sp.instr.mov.d == 1){
-				rf.write(sp.instr.mov.rd + 8, rf[sp.instr.mov.rm]);
-				stats.numRegReads++;
-				stats.numRegWrites++;
-			}
-			else{
-				rf.write(sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-				stats.numRegReads++;
-				stats.numRegWrites++;
-			}
-          }
-          break;
-		case SP_ADD:
-		 if (sp.instr.add.d == 1 && sp.instr.add.rd == 5 || sp.instr.add.rm == 13) {
-		    rf.write(SP_REG, SP + rf[sp.instr.add.rm]);
-			stats.numRegReads++;
-			stats.numRegWrites++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
-         }
-         else {
-            rf.write(sp.instr.add.rd, rf[sp.instr.add.rd] + rf[sp.instr.add.rm]);
+         	}
+         	else {
+            		rf.write(sp.instr.add.rd, rf[sp.instr.add.rd] + rf[sp.instr.add.rm]);
 			stats.numRegReads += 2;
 			stats.numRegWrites++;
-         }
+        	 }
 		 break;
-		case SP_CMP:
+	 case SP_CMP:
 		 signed int signedResult;
 		 if(sp.instr.cmp.d == 1){
 		    setCarryOverflow(rf[sp.instr.cmp.rd + 8], rf[sp.instr.cmp.rm], OF_SUB);
@@ -679,6 +634,8 @@ void execute() {
 		    setCarryOverflow(rf[sp.instr.cmp.rd], rf[sp.instr.cmp.rm], OF_SUB);
 		    signedResult = (signed int)rf[sp.instr.cmp.rd] + (signed int)(~rf[sp.instr.cmp.rm] + 1);
 		 }
+		stats.numRegReads++;
+		stats.numRegWrites++;
 		 
 		 if(signedResult & 1 << 31){
 		    flags.N = 1;
@@ -703,6 +660,8 @@ void execute() {
 	    case STRR:
 		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+		  stats.numRegReads += 3;
+		  stats.numMemWrites++;
 		  break;
 		case STRHR:
 		  cout << "MISSING STRHR" << endl;
@@ -712,6 +671,9 @@ void execute() {
 		  temp = dmem[addr];
 		  temp.set_data_ubyte4(0, rf[ld_st.instr.ld_st_reg.rt]);
 		  dmem.write(addr, temp);
+		  stats.numRegReads += 3;
+		  stats.numMemReads++;
+		  stats.numMemWrites++;
 		  break;
 		case STRSBR:
 		  cout << "MISSING STRSBR" << endl;
@@ -719,13 +681,18 @@ void execute() {
 		case LDRR:
 		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
+		  stats.numRegReads += 2;
+		  stats.numMemReads++;
+		  stats.numRegWrites++;
 		  break;
 		case LDRHR:
 		  cout << "MISSING LDRHR" << endl;
 		  break;
 		case LDRBR:
 		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-		  rf.write(ld_st.instr.ld_st_reg.rt, 0xFF000000 & dmem[addr]);
+		  rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr].data_ubyte4(0));
+		  stats.numMemReads++;
+		  stats.numRegWrites++;
 		  break;
 		case LDRSBR:
 		  cout << "MISSING LDRSBR" << endl;
@@ -751,10 +718,16 @@ void execute() {
 		  temp = dmem[addr];
 		  temp.set_data_ubyte4(0, rf[ld_st.instr.ld_st_imm.rt]);
 		  dmem.write(addr, temp);
+		  stats.numRegReads += 2;
+		  stats.numMemReads++;
+		  stats.numMemWrites++;
 		  break;
 		case LDRBI:
 		  addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-		  rf.write(ld_st.instr.ld_st_imm.rt, 0xFF000000 & dmem[addr]);
+		  rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr].data_ubyte4(0));
+		  stats.numRegReads++;
+		  stats.numMemReads++;
+		  stats.numRegWrites++;
 		  break;
 		case STRHI:
 		  cout << "MISSING STRHI" << endl;
@@ -775,8 +748,7 @@ void execute() {
 		  stats.numMemReads++;
 		  stats.numRegWrites++;
 		  break;
-      }
-      break;
+    }
     case MISC:
       misc_ops = decode(misc);
       switch(misc_ops) {
@@ -848,91 +820,66 @@ void execute() {
         case MISC_POP:
 		    if (misc.instr.pop.m) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(PC_REG, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 128) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(7, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 64) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(6, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 32) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(5, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 16) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(4, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 8) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(3, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 4) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(2, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 		    if (misc.instr.pop.reg_list & 2) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(1, dmem[SP]);
-=======
 				stats.numRegReads++;
 				stats.numMemReads++;
 				stats.numRegWrites += 2;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
 		    }
 			if (misc.instr.pop.reg_list & 1) {
 				rf.write(SP_REG, SP + 4);
-<<<<<<< HEAD
 				rf.write(0, dmem[SP]);
-=======
 				stats.numRegReads++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
+				stats.numMemReads++;
+				stats.numRegWrites += 2;
 		    }
           break;
         case MISC_SUB:
@@ -953,167 +900,122 @@ void execute() {
       // this should work for all your conditional branches.
       if (checkCondition(cond.instr.b.cond)){
         rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
-		stats.numRegReads++;
-		stats.numRegWrites++;
+		  stats.numRegReads++;
+		  stats.numRegWrites++;
       }
       break;
     case UNCOND:
       decode(uncond);
-<<<<<<< HEAD
       rf.write(PC_REG, PC + 2 * signExtend8to32ui(uncond.instr.b.imm) + 2);
-=======
-      rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
-	  stats.numRegReads++;
-	  stats.numRegWrites++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
+		  stats.numRegReads++;
+		  stats.numRegWrites++;
       break;
     case LDM:
       decode(ldm);
 		if (ldm.instr.ldm.reg_list & 1) {
 			dmem.write(rf[ldm.instr.ldm.rn], rf[0]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 2) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[1]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 4) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[2]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 8) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[3]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 16) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[4]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 32) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[5]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		} 
 		if (ldm.instr.ldm.reg_list & 64) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[6]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		if (ldm.instr.ldm.reg_list & 128) {
 			dmem.write(rf[ldm.instr.ldm.rn] + tempMov, rf[7]);
+			stats.numRegReads += 2;
+			stats.numMemWrites++;
 			tempMov += 4;
 		}
 		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);
-		/*if (ldm.instr.ldm.reg_list & 128) {
-			tempMov -= 4;
-			rf.write(7, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-		if (ldm.instr.ldm.reg_list & 64) {
-			tempMov -= 4;
-			rf.write(6, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-		if (ldm.instr.ldm.reg_list & 32) {
-			tempMov -= 4;
-			rf.write(5, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		} 
-		if (ldm.instr.ldm.reg_list & 16) {
-			tempMov -= 4;
-			rf.write(4, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-		if (ldm.instr.ldm.reg_list & 8) {
-			tempMov -= 4;
-			rf.write(3, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-		if (ldm.instr.ldm.reg_list & 4) {
-			tempMov -= 4;
-			rf.write(2, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-		if (ldm.instr.ldm.reg_list & 2) {
-			tempMov -= 4;
-			rf.write(1, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-		if (ldm.instr.ldm.reg_list & 1) {
-			tempMov -= 4;
-			rf.write(0, dmem[ldm.instr.ldm.rn] + tempMov);
-			stats.numMemReads++;
-			stats.numRegWrites++;
-		}
-<<<<<<< HEAD
-		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);*/
-=======
-		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);
-		stats.numRegReads++;
-		stats.numRegWrites++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
       break;
     case STM:
       decode(stm);
 		if (stm.instr.stm.reg_list & 1) {
 			dmem.write(rf[stm.instr.stm.rn], rf[0]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 2) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[1]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 4) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[2]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 8) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[3]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 16) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[4]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 32) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[5]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		} 
 		if (stm.instr.stm.reg_list & 64) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[6]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		if (stm.instr.stm.reg_list & 128) {
 			dmem.write(rf[stm.instr.stm.rn] + tempMov, rf[7]);
-			tempMov += 4;
-			stats.numRegReads++;
+			stats.numRegReads += 2;
 			stats.numMemWrites++;
+			tempMov += 4;
 		}
 		rf.write(stm.instr.stm.rn, rf[stm.instr.stm.rn] + tempMov);
 		stats.numRegReads++;
-		stats.numRegWrites++;
       break;
     case LDRL:
-<<<<<<< HEAD
 	  decode(ldrl);  
 	  
       if (PC & 2) {
@@ -1134,20 +1036,14 @@ void execute() {
       stats.numMemReads++;
 	  
 	  /*rf.write(ldrl.instr.ldrl.rt, PC + (ldrl.instr.ldrl.imm*4));*/
-=======
-      decode(ldrl);
-	  rf.write(ldrl.instr.ldrl.rt, PC + (ldrl.instr.ldrl.imm*4));
-		stats.numRegReads++;
-		stats.numRegWrites++;
->>>>>>> 4033255fb534cdad3f67b3df6eb2c45df935f5b0
       break;
     case ADD_SP:
       decode(addsp);
       rf.write(addsp.instr.add.rd, SP + (addsp.instr.add.imm*4));
-		stats.numRegReads++;
-		stats.numRegWrites++;
+	stats.numRegReads++;
+	stats.numRegWrites++;
       break;
-	case BL:
+    case BL:
 	  bl_ops = decode(blupper);
       if (bl_ops == BL_UPPER) {
         // PC has already been incremented above
@@ -1168,8 +1064,6 @@ void execute() {
         rf.write(LR_REG, PC + 2); 
         // Target address is also computed from that point 
         rf.write(PC_REG, PC + 2 + addr); 
-		stats.numRegReads++;
-		stats.numRegWrites += 2;
       }
       else {
         cerr << "Bad BL format." << endl; exit(1); 
