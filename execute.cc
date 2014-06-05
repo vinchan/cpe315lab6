@@ -690,8 +690,7 @@ void execute() {
 		  break;
 		case LDRBR:
 		  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-		  rf.write(ld_st.instr.ld_st_reg.rt, 0xFF000000 & dmem[addr]);
-		  stats.numRegReads += 2;
+		  rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr].data_ubyte4(0));
 		  stats.numMemReads++;
 		  stats.numRegWrites++;
 		  break;
@@ -725,7 +724,7 @@ void execute() {
 		  break;
 		case LDRBI:
 		  addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-		  rf.write(ld_st.instr.ld_st_imm.rt, 0xFF000000 & dmem[addr]);
+		  rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr].data_ubyte4(0));
 		  stats.numRegReads++;
 		  stats.numMemReads++;
 		  stats.numRegWrites++;
@@ -962,39 +961,6 @@ void execute() {
 			tempMov += 4;
 		}
 		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);
-		/*if (ldm.instr.ldm.reg_list & 128) {
-			tempMov -= 4;
-			rf.write(7, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		if (ldm.instr.ldm.reg_list & 64) {
-			tempMov -= 4;
-			rf.write(6, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		if (ldm.instr.ldm.reg_list & 32) {
-			tempMov -= 4;
-			rf.write(5, dmem[ldm.instr.ldm.rn] + tempMov);
-		} 
-		if (ldm.instr.ldm.reg_list & 16) {
-			tempMov -= 4;
-			rf.write(4, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		if (ldm.instr.ldm.reg_list & 8) {
-			tempMov -= 4;
-			rf.write(3, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		if (ldm.instr.ldm.reg_list & 4) {
-			tempMov -= 4;
-			rf.write(2, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		if (ldm.instr.ldm.reg_list & 2) {
-			tempMov -= 4;
-			rf.write(1, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		if (ldm.instr.ldm.reg_list & 1) {
-			tempMov -= 4;
-			rf.write(0, dmem[ldm.instr.ldm.rn] + tempMov);
-		}
-		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);*/
       break;
     case STM:
       decode(stm);
