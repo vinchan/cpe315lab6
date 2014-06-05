@@ -859,7 +859,7 @@ void execute() {
 			stats.numMemReads++;
 			stats.numRegWrites++;
 		}
-		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] - tempMov);
+		rf.write(ldm.instr.ldm.rn, rf[ldm.instr.ldm.rn] + tempMov);
 		stats.numRegReads++;
 		stats.numRegWrites++;
       break;
