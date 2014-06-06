@@ -901,15 +901,35 @@ void execute() {
       // this should work for all your conditional branches.
       if (checkCondition(cond.instr.b.cond)){
         rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
-		  stats.numRegReads++;
-		  stats.numRegWrites++;
+		stats.numRegReads++;
+		stats.numRegWrites++;
+		if (signExtend8to32ui(cond.instr.b.imm) < 0) {
+			stats.numBackwardBranchesTaken++;
+		}
+		else {
+			stats.numForwardBranchesTaken++;
+		}
       }
+	  else {
+		if (signExtend8to32ui(cond.instr.b.imm) < 0) {
+			stats.numBackwardBranchesNotTaken++;
+		}
+		else {
+			stats.numForwardBranchesNotTaken++;
+		}
+	  }
       break;
     case UNCOND:
-      decode(uncond);
-      rf.write(PC_REG, PC + 2 * signExtend8to32ui(uncond.instr.b.imm) + 2);
-		  stats.numRegReads++;
-		  stats.numRegWrites++;
+		decode(uncond);
+		rf.write(PC_REG, PC + 2 * signExtend8to32ui(uncond.instr.b.imm) + 2);
+		stats.numRegReads++;
+		stats.numRegWrites++;
+		if (signExtend8to32ui(uncond.instr.b.imm) < 0) {
+			stats.numBackwardBranchesTaken++;
+		}
+		else {
+			stats.numForwardBranchesTaken++;
+		}
       break;
     case LDM:
       decode(ldm);
